@@ -16,7 +16,7 @@
 import sbtprotoc.ProtocPlugin.ProtobufConfig
 
 val magnoliaScala2Version = "1.1.3"
-val magnoliaScala3Version = "1.1.4"
+val magnoliaScala3Version = "1.2.6"
 
 val algebirdVersion = "0.13.9"
 val avroVersion = Option(sys.props("avro.version")).getOrElse("1.11.0")
@@ -40,7 +40,7 @@ val tensorflowMetadataVersion = "1.10.0"
 val tensorflowVersion = "0.4.2"
 
 // project
-ThisBuild / tlBaseVersion := "0.6"
+ThisBuild / tlBaseVersion := "0.7"
 ThisBuild / organization := "com.spotify"
 ThisBuild / organizationName := "Spotify AB"
 ThisBuild / startYear := Some(2016)
@@ -112,7 +112,7 @@ val coverageCond = Seq(
 ).mkString(" && ")
 
 ThisBuild / scalaVersion := defaultScala
-ThisBuild / crossScalaVersions := Seq(scala213, scala212)
+ThisBuild / crossScalaVersions := Seq(scala3, scala213, scala212)
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions := Seq(java11, java8)
 ThisBuild / githubWorkflowBuild := Seq(
@@ -286,6 +286,7 @@ lazy val scalacheck = project
     commonSettings,
     moduleName := "magnolify-scalacheck",
     description := "Magnolia add-on for ScalaCheck",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies += "org.scalacheck" %% "scalacheck" % scalacheckVersion % Provided
   )
 
@@ -300,6 +301,7 @@ lazy val cats = project
     commonSettings,
     moduleName := "magnolify-cats",
     description := "Magnolia add-on for Cats",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % catsVersion % Provided,
       "com.twitter" %% "algebird-core" % algebirdVersion % Test,
@@ -318,6 +320,7 @@ lazy val guava = project
     commonSettings,
     moduleName := "magnolify-guava",
     description := "Magnolia add-on for Guava",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.guava" % "guava" % guavaVersion % Provided
     )
@@ -339,6 +342,7 @@ lazy val refined = project
     commonSettings,
     moduleName := "magnolify-refined",
     description := "Magnolia add-on for Refined",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.guava" % "guava" % guavaVersion % Provided,
       "eu.timepit" %% "refined" % refinedVersion % Provided,
@@ -363,6 +367,7 @@ lazy val avro = project
     commonSettings,
     moduleName := "magnolify-avro",
     description := "Magnolia add-on for Apache Avro",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "org.apache.avro" % "avro" % avroVersion % Provided,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion % Test
@@ -381,6 +386,7 @@ lazy val bigquery = project
     commonSettings,
     moduleName := "magnolify-bigquery",
     description := "Magnolia add-on for Google Cloud BigQuery",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.apis" % "google-api-services-bigquery" % bigqueryVersion % Provided,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion % Test
@@ -399,6 +405,7 @@ lazy val bigtable: Project = project
     commonSettings,
     moduleName := "magnolify-bigtable",
     description := "Magnolia add-on for Google Cloud Bigtable",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.api.grpc" % "proto-google-cloud-bigtable-v2" % bigtableVersion % Provided
     )
@@ -416,6 +423,7 @@ lazy val datastore = project
     commonSettings,
     moduleName := "magnolify-datastore",
     description := "Magnolia add-on for Google Cloud Datastore",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.cloud.datastore" % "datastore-v1-proto-client" % datastoreVersion % Provided
     )
@@ -434,6 +442,7 @@ lazy val parquet = project
     commonSettings,
     moduleName := "magnolify-parquet",
     description := "Magnolia add-on for Apache Parquet",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion % Provided,
       "org.apache.parquet" % "parquet-avro" % parquetVersion % Provided,
@@ -457,7 +466,8 @@ lazy val protobuf = project
     commonSettings,
     protobufSettings,
     moduleName := "magnolify-protobuf",
-    description := "Magnolia add-on for Google Protocol Buffer"
+    description := "Magnolia add-on for Google Protocol Buffer",
+    crossScalaVersions := Seq(scala213, scala212),
   )
 
 val unpackMetadata = taskKey[Seq[File]]("Unpack tensorflow metadata proto files.")
@@ -475,6 +485,7 @@ lazy val tensorflow = project
     protobufSettings,
     moduleName := "magnolify-tensorflow",
     description := "Magnolia add-on for TensorFlow",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.protobuf" % "protobuf-java" % protobufVersion % ProtobufConfig,
       "org.tensorflow" % "tensorflow-core-api" % tensorflowVersion % Provided
@@ -509,6 +520,7 @@ lazy val neo4j = project
     commonSettings,
     moduleName := "magnolify-neo4j",
     description := "Magnolia add-on for Neo4j",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "org.neo4j.driver" % "neo4j-java-driver" % neo4jDriverVersion % Provided
     )
@@ -527,6 +539,7 @@ lazy val tools = project
     commonSettings,
     moduleName := "magnolify-tools",
     description := "Magnolia add-on for code generation",
+    crossScalaVersions := Seq(scala213, scala212),
     libraryDependencies ++= Seq(
       "com.google.apis" % "google-api-services-bigquery" % bigqueryVersion,
       "org.apache.avro" % "avro" % avroVersion % Provided,
@@ -552,6 +565,7 @@ lazy val jmh: Project = project
   )
   .settings(
     commonSettings,
+    crossScalaVersions := Seq(scala213),
     Jmh / classDirectory := (Test / classDirectory).value,
     Jmh / dependencyClasspath := (Test / dependencyClasspath).value,
     // rewire tasks, so that 'jmh:run' automatically invokes 'jmh:compile'
