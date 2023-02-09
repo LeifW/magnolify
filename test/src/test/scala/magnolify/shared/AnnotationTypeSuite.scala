@@ -29,6 +29,37 @@ class AnnotationTypeSuite extends MagnolifySuite {
   test("Class") {
     assertEquals(AnnotationType[Account].annotations, List(Version("2.0")))
   }
+
+  test("Class") {
+    assertEquals(AnnotationType[Account].annotations, List(Version("2.0")))
+  }
+
+  test("standard types") {
+    val comErrors = compileErrors("AnnotationType[None.type]")
+    assertNoDiff(
+      compileErrors("AnnotationType[None.type]"),
+      """|error: Annotated type must not be a standard type
+         |AnnotationType[None.type]
+         |              ^
+         |""".stripMargin
+    )
+
+    assertNoDiff(
+      compileErrors("AnnotationType[Option[Long]]"),
+      """|error: Annotated type must not be a standard type
+         |AnnotationType[Option[Long]]
+         |              ^
+         |""".stripMargin
+    )
+
+    assertNoDiff(
+      compileErrors("AnnotationType[String]"),
+      """|error: Annotated type must not be a standard type
+         |AnnotationType[String]
+         |              ^
+         |""".stripMargin
+    )
+  }
 }
 
 object AnnotationTypeSuite {

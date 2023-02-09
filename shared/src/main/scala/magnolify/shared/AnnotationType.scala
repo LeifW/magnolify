@@ -21,30 +21,51 @@ import scala.reflect.macros._
 sealed case class AnnotationType[T](annotations: List[Any])
 
 object AnnotationType {
-  implicit def apply[T]: AnnotationType[T] = macro applyImpl[T]
+  implicit def apply[T]: AnnotationType[T] = macro MacroBundle.impl[T]
 
-  def applyImpl[T: c.WeakTypeTag](c: whitebox.Context): c.Tree = {
+  class MacroBundle(val c: whitebox.Context) {
     import c.universe._
-    val wtt = weakTypeTag[T]
-    val pre = wtt.tpe.asInstanceOf[TypeRef].pre
 
-    // Scala 2.12 & 2.13 macros seem to handle annotations differently
-    // Scala annotation works in both but Java annotations only works in 2.13
-    val saType = typeOf[scala.annotation.StaticAnnotation]
-    val jaType = typeOf[java.lang.annotation.Annotation]
-    // Annotation for Scala enumerations are on the outer object
-    val annotated = if (pre <:< typeOf[scala.Enumeration]) pre else wtt.tpe
-    val trees = annotated.typeSymbol.annotations.collect {
-      case t if t.tree.tpe <:< saType && !(t.tree.tpe <:< jaType) =>
-        // FIXME `t.tree` should work but somehow crashes the compiler
-        val q"new $n(..$args)" = t.tree
-        q"new $n(..$args)"
+    def isStandardType(t: Type): Boolean =
+      t.typeSymbol.isType && (
+        // TODO: add all primitive types?
+        t <:< typeOf[Boolean] ||
+          t <:< typeOf[Long] ||
+          t <:< typeOf[String] ||
+          t <:< typeOf[scala.Option[_]] ||
+          t <:< typeOf[scala.Some[_]] ||
+          t <:< typeOf[scala.None.type] ||
+          t <:< typeOf[scala.Either[_, _]] ||
+          t <:< typeOf[scala.Right[_, _]] ||
+          t <:< typeOf[scala.Left[_, _]]
+      )
+
+    def impl[T: c.WeakTypeTag]: c.Tree = {
+      val wtt = weakTypeTag[T]
+      if (isStandardType(wtt.tpe)) {
+        c.abort(c.enclosingPosition, "Annotated type must not be a standard type")
+      }
+
+      val pre = wtt.tpe.asInstanceOf[TypeRef].pre
+
+      // Scala 2.12 & 2.13 macros seem to handle annotations differently
+      // Scala annotation works in both but Java annotations only works in 2.13
+      val saType = typeOf[scala.annotation.StaticAnnotation]
+      val jaType = typeOf[java.lang.annotation.Annotation]
+      // Annotation for Scala enumerations are on the outer object
+      val annotated = if (pre <:< typeOf[scala.Enumeration]) pre else wtt.tpe
+      val trees = annotated.typeSymbol.annotations.collect {
+        case t if t.tree.tpe <:< saType && !(t.tree.tpe <:< jaType) =>
+          // FIXME `t.tree` should work but somehow crashes the compiler
+          val q"new $n(..$args)" = t.tree
+          q"new $n(..$args)"
+      }
+
+      // Get Java annotations via reflection
+      val j = q"classOf[${annotated.typeSymbol.asClass}].getAnnotations.toList"
+      val annotations = q"_root_.scala.List(..$trees) ++ $j"
+
+      q"new _root_.magnolify.shared.AnnotationType[$wtt]($annotations)"
     }
-
-    // Get Java annotations via reflection
-    val j = q"classOf[${annotated.typeSymbol.asClass}].getAnnotations.toList"
-    val annotations = q"_root_.scala.List(..$trees) ++ $j"
-
-    q"new _root_.magnolify.shared.AnnotationType[$wtt]($annotations)"
   }
 }
